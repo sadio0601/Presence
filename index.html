@@ -63,6 +63,9 @@
             font-size: 1.8rem;
             font-weight: bold;
         }
+        .year-selector {
+            max-width: 200px;
+        }
     </style>
 </head>
 <body>
@@ -84,6 +87,13 @@
                             <h3 class="card-title mb-0"><i class="fas fa-user-check me-2"></i>Saisie des présences</h3>
                         </div>
                         <div class="card-body">
+                            <div class="mb-4">
+                                <label for="yearSelect" class="form-label">Sélectionner l'année</label>
+                                <select class="form-select year-selector" id="yearSelect">
+                                    <!-- Les options seront générées par JavaScript -->
+                                </select>
+                            </div>
+                            
                             <div class="mb-4">
                                 <label for="dateSelect" class="form-label">Sélectionner la date</label>
                                 <select class="form-select" id="dateSelect">
@@ -173,7 +183,7 @@
             </div>
             
             <div class="row mb-4">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="card stat-card bg-primary text-white">
                         <div class="card-body text-center">
                             <h3 id="totalPersons">0</h3>
@@ -181,7 +191,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="card stat-card bg-success text-white">
                         <div class="card-body text-center">
                             <h3 id="totalPresent">0</h3>
@@ -189,11 +199,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="card stat-card bg-danger text-white">
                         <div class="card-body text-center">
                             <h3 id="totalAbsent">0</h3>
                             <p class="mb-0">Absences totales</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h3 id="totalDays">0</h3>
+                            <p class="mb-0">Jours de présence</p>
                         </div>
                     </div>
                 </div>
@@ -216,6 +234,7 @@
                                     <th>Absences (Samedis)</th>
                                     <th>Total Présences</th>
                                     <th>Total Absences</th>
+                                    <th>Taux de présence</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -259,27 +278,46 @@
                 { id: 18, nom: 'Camara', prenom: "Sadio" }
             ];
 
-            // Générer les dates des mardis et samedis du mois en cours
-            function generateDates() {
+            // Générer les dates des mardis et samedis pour une année donnée
+            function generateDates(year) {
                 const dates = [];
-                const today = new Date();
-                const year = today.getFullYear();
-                const month = today.getMonth();
                 
-                // Premier jour du mois
-                const firstDay = new Date(year, month, 1);
-                // Dernier jour du mois
-                const lastDay = new Date(year, month + 1, 0);
-                
-                // Parcourir tous les jours du mois
-                for (let day = firstDay; day <= lastDay; day.setDate(day.getDate() + 1)) {
-                    // Vérifier si c'est un mardi (2) ou un samedi (6)
-                    if (day.getDay() === 2 || day.getDay() === 6) {
-                        dates.push(new Date(day));
+                // Parcourir tous les mois de l'année
+                for (let month = 0; month < 12; month++) {
+                    // Premier jour du mois
+                    const firstDay = new Date(year, month, 1);
+                    // Dernier jour du mois
+                    const lastDay = new Date(year, month + 1, 0);
+                    
+                    // Parcourir tous les jours du mois
+                    for (let day = new Date(firstDay); day <= lastDay; day.setDate(day.getDate() + 1)) {
+                        // Vérifier si c'est un mardi (2) ou un samedi (6)
+                        if (day.getDay() === 2 || day.getDay() === 6) {
+                            dates.push(new Date(day));
+                        }
                     }
                 }
                 
                 return dates;
+            }
+
+            // Remplir le sélecteur d'année
+            function populateYearSelect() {
+                const select = document.getElementById('yearSelect');
+                select.innerHTML = '';
+                
+                const currentYear = new Date().getFullYear();
+                
+                // Ajouter les 5 dernières années et les 5 prochaines
+                for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    if (year === currentYear) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                }
             }
 
             // Récupérer les données du localStorage ou initialiser
@@ -311,7 +349,8 @@
                 const select = document.getElementById('dateSelect');
                 select.innerHTML = '';
                 
-                const dates = generateDates();
+                const selectedYear = parseInt(document.getElementById('yearSelect').value);
+                const dates = generateDates(selectedYear);
                 
                 dates.forEach(date => {
                     const option = document.createElement('option');
@@ -452,6 +491,8 @@
                 tableBody.innerHTML = '';
                 
                 const presenceData = getPresenceData();
+                const selectedYear = parseInt(document.getElementById('yearSelect').value);
+                const datesForYear = generateDates(selectedYear);
                 
                 let totalPresentCount = 0;
                 let totalAbsentCount = 0;
@@ -481,6 +522,8 @@
                     
                     const totalPresent = tuesdayPresent + saturdayPresent;
                     const totalAbsent = tuesdayAbsent + saturdayAbsent;
+                    const totalDays = datesForYear.length;
+                    const presenceRate = totalDays > 0 ? ((totalPresent / totalDays) * 100).toFixed(1) + '%' : '0%';
                     
                     totalPresentCount += totalPresent;
                     totalAbsentCount += totalAbsent;
@@ -495,6 +538,7 @@
                         <td><span class="badge bg-danger">${saturdayAbsent}</span></td>
                         <td><span class="badge bg-success">${totalPresent}</span></td>
                         <td><span class="badge bg-danger">${totalAbsent}</span></td>
+                        <td><span class="badge bg-info">${presenceRate}</span></td>
                     `;
                     
                     tableBody.appendChild(row);
@@ -504,6 +548,7 @@
                 document.getElementById('totalPersons').textContent = persons.length;
                 document.getElementById('totalPresent').textContent = totalPresentCount;
                 document.getElementById('totalAbsent').textContent = totalAbsentCount;
+                document.getElementById('totalDays').textContent = datesForYear.length;
             }
 
             // Imprimer le rapport
@@ -522,14 +567,16 @@
                 
                 // Date du rapport
                 const today = new Date();
+                const selectedYear = parseInt(document.getElementById('yearSelect').value);
                 doc.setFontSize(12);
-                doc.text(`Généré le: ${formatDate(today)}`, 105, 25, { align: 'center' });
+                doc.text(`Année: ${selectedYear} - Généré le: ${formatDate(today)}`, 105, 25, { align: 'center' });
                 
                 // Tableau des données
-                const tableColumn = ["Nom", "Prénom", "Prés. Mardi", "Abs. Mardi", "Prés. Samedi", "Abs. Samedi", "Total Prés.", "Total Abs."];
+                const tableColumn = ["Nom", "Prénom", "Prés. Mardi", "Abs. Mardi", "Prés. Samedi", "Abs. Samedi", "Total Prés.", "Total Abs.", "Taux Présence"];
                 const tableRows = [];
                 
                 const presenceData = getPresenceData();
+                const datesForYear = generateDates(selectedYear);
                 
                 persons.forEach(person => {
                     const personPresences = presenceData.filter(p => p.personId == person.id);
@@ -554,6 +601,8 @@
                     
                     const totalPresent = tuesdayPresent + saturdayPresent;
                     const totalAbsent = tuesdayAbsent + saturdayAbsent;
+                    const totalDays = datesForYear.length;
+                    const presenceRate = totalDays > 0 ? ((totalPresent / totalDays) * 100).toFixed(1) + '%' : '0%';
                     
                     const personData = [
                         person.nom,
@@ -563,7 +612,8 @@
                         saturdayPresent.toString(),
                         saturdayAbsent.toString(),
                         totalPresent.toString(),
-                        totalAbsent.toString()
+                        totalAbsent.toString(),
+                        presenceRate
                     ];
                     
                     tableRows.push(personData);
@@ -575,22 +625,29 @@
                     body: tableRows,
                     startY: 35,
                     theme: 'grid',
-                    styles: { fontSize: 10 },
+                    styles: { fontSize: 8 },
                     headStyles: { fillColor: [106, 17, 203] }
                 });
                 
                 // Enregistrer le PDF
-                doc.save(`rapport_presences_${today.getFullYear()}_${today.getMonth()+1}.pdf`);
+                doc.save(`rapport_presences_${selectedYear}.pdf`);
             }
 
             // Initialiser l'application
             function initApp() {
+                populateYearSelect();
                 populatePersonSelect();
                 populateDateSelect();
                 displayTodayPresences();
                 
                 // Mettre à jour la table quand la date change
                 document.getElementById('dateSelect').addEventListener('change', displayTodayPresences);
+                
+                // Mettre à jour les dates quand l'année change
+                document.getElementById('yearSelect').addEventListener('change', function() {
+                    populateDateSelect();
+                    displayTodayPresences();
+                });
             }
 
             // Démarrer l'application
