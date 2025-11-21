@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Présence Hebdomadaire</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+        }
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 20px 0;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 30px;
+        }
+        .present {
+            color: #28a745;
+        }
+        .absent {
+            color: #dc3545;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+            border: none;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table th {
+            background-color: #6a11cb;
+            color: white;
+        }
+        .badge-present {
+            background-color: #28a745;
+        }
+        .badge-absent {
+            background-color: #dc3545;
+        }
+        .stat-card {
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        .year-selector {
+            max-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête -->
+    <div class="header text-center">
+        <div class="container">
+            <h1 class="logo"><i class="fas fa-calendar-check me-2"></i>Système de Présence</h1>
+            <p class="lead">Gestion des présences pour les mardis et samedis</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Première page - Saisie des présences -->
+        <div id="page1">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="card-title mb-0"><i class="fas fa-user-check me-2"></i>Saisie des présences</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label for="yearSelect" class="form-label">Sélectionner l'année</label>
+                                <select class="form-select year-selector" id="yearSelect">
+                                    <!-- Les options seront générées par JavaScript -->
+                                </select>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="dateSelect" class="form-label">Sélectionner la date</label>
+                                <select class="form-select" id="dateSelect">
+                                    <!-- Les options seront générées par JavaScript -->
+                                </select>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="personSelect" class="form-label">Sélectionner une personne</label>
+                                <select class="form-select" id="personSelect">
+                                    <!-- Les options seront générées par JavaScript -->
+                                </select>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">Statut de présence</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="status" id="present" value="present" checked>
+                                        <label class="form-check-label present" for="present">
+                                            <i class="fas fa-check-circle me-1"></i> Présent
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="status" id="absent" value="absent">
+                                        <label class="form-check-label absent" for="absent">
+                                            <i class="fas fa-times-circle me-1"></i> Absent
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="saveBtn">
+                                    <i class="fas fa-save me-2"></i>Enregistrer la présence
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0"><i class="fas fa-list me-2"></i>Liste des présences du jour</h4>
+                            <button class="btn btn-light btn-sm" id="viewDetailsBtn">
+                                <i class="fas fa-chart-bar me-1"></i>Voir les détails
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="presenceTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Prénom</th>
+                                            <th>Statut</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Les données seront ajoutées par JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Deuxième page - Détails des présences -->
+        <div id="page2" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-chart-bar me-2"></i>Détails des présences</h2>
+                <div>
+                    <button class="btn btn-secondary me-2" id="backBtn">
+                        <i class="fas fa-arrow-left me-1"></i>Retour
+                    </button>
+                    <button class="btn btn-success" id="printBtn">
+                        <i class="fas fa-print me-1"></i>Imprimer le rapport
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h3 id="totalPersons">0</h3>
+                            <p class="mb-0">Personnes enregistrées</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h3 id="totalPresent">0</h3>
+                            <p class="mb-0">Présences totales</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card bg-danger text-white">
+                        <div class="card-body text-center">
+                            <h3 id="totalAbsent">0</h3>
+                            <p class="mb-0">Absences totales</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h3 id="totalDays">0</h3>
+                            <p class="mb-0">Jours de présence</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-table me-2"></i>Rapport des présences</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="detailsTable">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Prénom</th>
+                                    <th>Présences (Mardis)</th>
+                                    <th>Absences (Mardis)</th>
+                                    <th>Présences (Samedis)</th>
+                                    <th>Absences (Samedis)</th>
+                                    <th>Total Présences</th>
+                                    <th>Total Absences</th>
+                                    <th>Taux de présence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Les données seront ajoutées par JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jsPDF pour l'export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
+    <script>
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Données d'exemple
+            const persons = [
+                { id: 1, nom: 'Dassouza', prenom: "Seydou" },
+                { id: 2, nom: 'Faye', prenom: "Djily" },
+                { id: 3, nom: 'Ndiaye', prenom: "Mame Thierno" },
+                { id: 4, nom: 'Faye', prenom: "Ousmane" },
+                { id: 5, nom: 'Dabo', prenom: "Saliou" },
+                { id: 6, nom: 'Fall', prenom: "Mansour" },
+                { id: 7, nom: 'Diallo', prenom: "Yoro" },
+                { id: 8, nom: 'Sall', prenom: "Alioune" },
+                { id: 9, nom: 'Dabo', prenom: "Fallou" },
+                { id: 10, nom: 'Ndiaye', prenom: "Saliou" },
+                { id: 11, nom: 'Mandiang', prenom: "Khadim" },
+                { id: 12, nom: 'Lô', prenom: "Ibrahima" },
+                { id: 13, nom: 'Mbow', prenom: "Mamadou" },
+                { id: 14, nom: 'Faye', prenom: "Galass" },
+                { id: 15, nom: 'Diouf', prenom: "Maga" },
+                { id: 16, nom: 'Gassama', prenom: "Mbaye" },
+                { id: 17, nom: 'Traoré', prenom: "Cheikhou" },
+                { id: 18, nom: 'Camara', prenom: "Sadio" }
+            ];
+
+            // Générer les dates des mardis et samedis pour une année donnée
+            function generateDates(year) {
+                const dates = [];
+                
+                // Parcourir tous les mois de l'année
+                for (let month = 0; month < 12; month++) {
+                    // Premier jour du mois
+                    const firstDay = new Date(year, month, 1);
+                    // Dernier jour du mois
+                    const lastDay = new Date(year, month + 1, 0);
+                    
+                    // Parcourir tous les jours du mois
+                    for (let day = new Date(firstDay); day <= lastDay; day.setDate(day.getDate() + 1)) {
+                        // Vérifier si c'est un mardi (2) ou un samedi (6)
+                        if (day.getDay() === 2 || day.getDay() === 6) {
+                            dates.push(new Date(day));
+                        }
+                    }
+                }
+                
+                return dates;
+            }
+
+            // Remplir le sélecteur d'année
+            function populateYearSelect() {
+                const select = document.getElementById('yearSelect');
+                select.innerHTML = '';
+                
+                const currentYear = new Date().getFullYear();
+                
+                // Ajouter les 5 dernières années et les 5 prochaines
+                for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    if (year === currentYear) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                }
+            }
+
+            // Récupérer les données du localStorage ou initialiser
+            function getPresenceData() {
+                const data = localStorage.getItem('presenceData');
+                return data ? JSON.parse(data) : [];
+            }
+
+            // Sauvegarder les données dans le localStorage
+            function savePresenceData(data) {
+                localStorage.setItem('presenceData', JSON.stringify(data));
+            }
+
+            // Remplir la liste déroulante des personnes
+            function populatePersonSelect() {
+                const select = document.getElementById('personSelect');
+                select.innerHTML = '';
+                
+                persons.forEach(person => {
+                    const option = document.createElement('option');
+                    option.value = person.id;
+                    option.textContent = `${person.nom} ${person.prenom}`;
+                    select.appendChild(option);
+                });
+            }
+
+            // Remplir la liste déroulante des dates
+            function populateDateSelect() {
+                const select = document.getElementById('dateSelect');
+                select.innerHTML = '';
+                
+                const selectedYear = parseInt(document.getElementById('yearSelect').value);
+                const dates = generateDates(selectedYear);
+                
+                dates.forEach(date => {
+                    const option = document.createElement('option');
+                    option.value = date.toISOString().split('T')[0];
+                    option.textContent = formatDate(date);
+                    select.appendChild(option);
+                });
+                
+                // Sélectionner la date d'aujourd'hui si disponible
+                const today = new Date().toISOString().split('T')[0];
+                const todayOption = select.querySelector(`option[value="${today}"]`);
+                if (todayOption) {
+                    todayOption.selected = true;
+                }
+            }
+
+            // Formater une date en français
+            function formatDate(date) {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                return date.toLocaleDateString('fr-FR', options);
+            }
+
+            // Obtenir le jour de la semaine en français
+            function getDayName(date) {
+                const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+                return days[date.getDay()];
+            }
+
+            // Afficher la table des présences du jour
+            function displayTodayPresences() {
+                const tableBody = document.querySelector('#presenceTable tbody');
+                tableBody.innerHTML = '';
+                
+                const selectedDate = document.getElementById('dateSelect').value;
+                const presenceData = getPresenceData();
+                
+                // Filtrer les présences pour la date sélectionnée
+                const todayPresences = presenceData.filter(p => p.date === selectedDate);
+                
+                if (todayPresences.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="5" class="text-center">Aucune présence enregistrée pour cette date</td>`;
+                    tableBody.appendChild(row);
+                    return;
+                }
+                
+                todayPresences.forEach(presence => {
+                    const person = persons.find(p => p.id === parseInt(presence.personId));
+                    if (!person) return;
+                    
+                    const row = document.createElement('tr');
+                    const statusIcon = presence.status === 'present' 
+                        ? '<i class="fas fa-check-circle present"></i> Présent' 
+                        : '<i class="fas fa-times-circle absent"></i> Absent';
+                    
+                    row.innerHTML = `
+                        <td>${person.nom}</td>
+                        <td>${person.prenom}</td>
+                        <td>${statusIcon}</td>
+                        <td>${formatDate(new Date(presence.date))}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${presence.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Ajouter les écouteurs d'événements pour les boutons de suppression
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const presenceId = this.getAttribute('data-id');
+                        deletePresence(presenceId);
+                    });
+                });
+            }
+
+            // Supprimer une présence
+            function deletePresence(presenceId) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer cette présence ?')) {
+                    let presenceData = getPresenceData();
+                    presenceData = presenceData.filter(p => p.id !== presenceId);
+                    savePresenceData(presenceData);
+                    displayTodayPresences();
+                }
+            }
+
+            // Enregistrer une nouvelle présence
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                const personId = document.getElementById('personSelect').value;
+                const date = document.getElementById('dateSelect').value;
+                const status = document.querySelector('input[name="status"]:checked').value;
+                
+                // Vérifier si une présence existe déjà pour cette personne à cette date
+                const presenceData = getPresenceData();
+                const existingPresence = presenceData.find(p => 
+                    p.personId === personId && p.date === date
+                );
+                
+                if (existingPresence) {
+                    alert('Une présence a déjà été enregistrée pour cette personne à cette date.');
+                    return;
+                }
+                
+                // Créer un nouvel enregistrement de présence
+                const newPresence = {
+                    id: Date.now(), // ID unique basé sur le timestamp
+                    personId: personId,
+                    date: date,
+                    status: status
+                };
+                
+                presenceData.push(newPresence);
+                savePresenceData(presenceData);
+                
+                alert('Présence enregistrée avec succès !');
+                displayTodayPresences();
+            });
+
+            // Afficher la page des détails
+            document.getElementById('viewDetailsBtn').addEventListener('click', function() {
+                document.getElementById('page1').classList.add('d-none');
+                document.getElementById('page2').classList.remove('d-none');
+                displayDetails();
+            });
+
+            // Retour à la première page
+            document.getElementById('backBtn').addEventListener('click', function() {
+                document.getElementById('page2').classList.add('d-none');
+                document.getElementById('page1').classList.remove('d-none');
+            });
+
+            // Afficher les détails des présences
+            function displayDetails() {
+                const tableBody = document.querySelector('#detailsTable tbody');
+                tableBody.innerHTML = '';
+                
+                const presenceData = getPresenceData();
+                const selectedYear = parseInt(document.getElementById('yearSelect').value);
+                const datesForYear = generateDates(selectedYear);
+                
+                let totalPresentCount = 0;
+                let totalAbsentCount = 0;
+                
+                persons.forEach(person => {
+                    // Filtrer les présences pour cette personne
+                    const personPresences = presenceData.filter(p => p.personId == person.id);
+                    
+                    // Compter les présences/absences par jour
+                    let tuesdayPresent = 0;
+                    let tuesdayAbsent = 0;
+                    let saturdayPresent = 0;
+                    let saturdayAbsent = 0;
+                    
+                    personPresences.forEach(presence => {
+                        const date = new Date(presence.date);
+                        const dayName = getDayName(date);
+                        
+                        if (dayName === 'Mardi') {
+                            if (presence.status === 'present') tuesdayPresent++;
+                            else tuesdayAbsent++;
+                        } else if (dayName === 'Samedi') {
+                            if (presence.status === 'present') saturdayPresent++;
+                            else saturdayAbsent++;
+                        }
+                    });
+                    
+                    const totalPresent = tuesdayPresent + saturdayPresent;
+                    const totalAbsent = tuesdayAbsent + saturdayAbsent;
+                    const totalDays = datesForYear.length;
+                    const presenceRate = totalDays > 0 ? ((totalPresent / totalDays) * 100).toFixed(1) + '%' : '0%';
+                    
+                    totalPresentCount += totalPresent;
+                    totalAbsentCount += totalAbsent;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${person.nom}</td>
+                        <td>${person.prenom}</td>
+                        <td><span class="badge bg-success">${tuesdayPresent}</span></td>
+                        <td><span class="badge bg-danger">${tuesdayAbsent}</span></td>
+                        <td><span class="badge bg-success">${saturdayPresent}</span></td>
+                        <td><span class="badge bg-danger">${saturdayAbsent}</span></td>
+                        <td><span class="badge bg-success">${totalPresent}</span></td>
+                        <td><span class="badge bg-danger">${totalAbsent}</span></td>
+                        <td><span class="badge bg-info">${presenceRate}</span></td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Mettre à jour les statistiques
+                document.getElementById('totalPersons').textContent = persons.length;
+                document.getElementById('totalPresent').textContent = totalPresentCount;
+                document.getElementById('totalAbsent').textContent = totalAbsentCount;
+                document.getElementById('totalDays').textContent = datesForYear.length;
+            }
+
+            // Imprimer le rapport
+            document.getElementById('printBtn').addEventListener('click', function() {
+                generatePDF();
+            });
+
+            // Générer un PDF avec jsPDF
+            function generatePDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Titre
+                doc.setFontSize(20);
+                doc.text('Rapport des Présences', 105, 15, { align: 'center' });
+                
+                // Date du rapport
+                const today = new Date();
+                const selectedYear = parseInt(document.getElementById('yearSelect').value);
+                doc.setFontSize(12);
+                doc.text(`Année: ${selectedYear} - Généré le: ${formatDate(today)}`, 105, 25, { align: 'center' });
+                
+                // Tableau des données
+                const tableColumn = ["Nom", "Prénom", "Prés. Mardi", "Abs. Mardi", "Prés. Samedi", "Abs. Samedi", "Total Prés.", "Total Abs.", "Taux Présence"];
+                const tableRows = [];
+                
+                const presenceData = getPresenceData();
+                const datesForYear = generateDates(selectedYear);
+                
+                persons.forEach(person => {
+                    const personPresences = presenceData.filter(p => p.personId == person.id);
+                    
+                    let tuesdayPresent = 0;
+                    let tuesdayAbsent = 0;
+                    let saturdayPresent = 0;
+                    let saturdayAbsent = 0;
+                    
+                    personPresences.forEach(presence => {
+                        const date = new Date(presence.date);
+                        const dayName = getDayName(date);
+                        
+                        if (dayName === 'Mardi') {
+                            if (presence.status === 'present') tuesdayPresent++;
+                            else tuesdayAbsent++;
+                        } else if (dayName === 'Samedi') {
+                            if (presence.status === 'present') saturdayPresent++;
+                            else saturdayAbsent++;
+                        }
+                    });
+                    
+                    const totalPresent = tuesdayPresent + saturdayPresent;
+                    const totalAbsent = tuesdayAbsent + saturdayAbsent;
+                    const totalDays = datesForYear.length;
+                    const presenceRate = totalDays > 0 ? ((totalPresent / totalDays) * 100).toFixed(1) + '%' : '0%';
+                    
+                    const personData = [
+                        person.nom,
+                        person.prenom,
+                        tuesdayPresent.toString(),
+                        tuesdayAbsent.toString(),
+                        saturdayPresent.toString(),
+                        saturdayAbsent.toString(),
+                        totalPresent.toString(),
+                        totalAbsent.toString(),
+                        presenceRate
+                    ];
+                    
+                    tableRows.push(personData);
+                });
+                
+                // Générer le tableau
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: 35,
+                    theme: 'grid',
+                    styles: { fontSize: 8 },
+                    headStyles: { fillColor: [106, 17, 203] }
+                });
+                
+                // Enregistrer le PDF
+                doc.save(`rapport_presences_${selectedYear}.pdf`);
+            }
+
+            // Initialiser l'application
+            function initApp() {
+                populateYearSelect();
+                populatePersonSelect();
+                populateDateSelect();
+                displayTodayPresences();
+                
+                // Mettre à jour la table quand la date change
+                document.getElementById('dateSelect').addEventListener('change', displayTodayPresences);
+                
+                // Mettre à jour les dates quand l'année change
+                document.getElementById('yearSelect').addEventListener('change', function() {
+                    populateDateSelect();
+                    displayTodayPresences();
+                });
+            }
+
+            // Démarrer l'application
+            initApp();
+        });
+    </script>
+</body>
+</html>
